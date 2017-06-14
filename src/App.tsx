@@ -3,6 +3,8 @@ import currentTheme from './theme/current'
 import { ThemeProvider } from './atoms/Theme'
 
 import Button from './atoms/Button'
+import SegmentedControl from './atoms/SegmentedControl'
+import Heading from './atoms/Heading'
 
 // let test: string = css({ border: '1px solid black' })
 
@@ -13,6 +15,10 @@ const renderRule = (rule: Object) => css(rule).toString()
 
 export default () => (
   <ThemeProvider renderRule={renderRule} theme={currentTheme}>
-    <Button>Hello World</Button>
+    <div>
+      <SegmentedControl values={['One', 'Two', 'Three']} />
+      <Button>Hello World</Button>
+      <Heading>Hello Boldly</Heading>
+    </div>
   </ThemeProvider> 
 )  

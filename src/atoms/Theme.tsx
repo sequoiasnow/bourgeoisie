@@ -39,7 +39,6 @@ export class ThemeProvider extends React.Component<ThemeContext, {}>{
  * Allows a simple component to consume the props passed to it.
  */
 export function withTheme(Component: React.ComponentType<Object>) {
-  return (props: Object, context: ThemeContext) => (
-    <Component {...props} {...context} />
-  )
+  Component.contextTypes = { theme: PropTypes.object }
+  return Component
 }

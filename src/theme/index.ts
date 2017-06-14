@@ -47,5 +47,14 @@ export interface Theme {
         lineHeight: number,
         fontSize: (r: number) => number
     },
+    text: {
+        // The standard text color for the entire site.
+        color: string,
+        // The alternate color for a darker background.
+        colorAlt: string,
+        // The primary font for the entire site, consistancy is important
+        // but if you added another font it would be fontFamilyAlt
+        fontFamily: string,
+    }
     borderRadius: number
 }

@@ -3,20 +3,28 @@ import { Theme, Color, Colors, StyleObject, MaybeRhythm } from '../theme'
 import { withTheme, ThemeContext } from './Theme'
 
 // The special type of a style element which can access the theme.
-export type Style = (t: Theme) => StyleObject 
+export type Style = (t: Theme) => StyleObject
 
 // Allows two or more style objects to join together as follows.
-export const joinStyles = (...styles: Style[]) => (theme: Theme) =>
+export const joinStyles = (...styles: Style[]) => (theme: Theme) => 
     styles.filter((s) => s).reduce((total: StyleObject, style: Style) => ({
         ...total,
         ...(typeof style == 'object' ? style : style(theme))
+    }), {})
+
+// A conveniance function to allow style inheratance, this was made
+// more complicated by passing around the theme component.
+export const withStyle = (...styles: (Style | Style[])[]) => (theme: Theme) =>
+    styles.reduce((total: StyleObject, style: (Style | Style[])) => ({
+        ...total,
+        ...((Array.isArray(style) ? joinStyles(...style) : style)(theme))
     }), {})
 
 export type BoxProps = {
     // What underlying html or react element to render the box as.
     as?: string // | React.ComponentClass<Object> // -- Some difficulty here somehow.
     // A style object to pass to glamour.
-    style?: Style, 
+    css?: Style | Array<Style>, 
  
     margin?: MaybeRhythm,
     marginHorizontal?: MaybeRhythm,
@@ -115,10 +123,17 @@ const reduce = (props: BoxProps, getValue: (v: MaybeRhythm) => MaybeRhythm) =>
 
 const reduceRhythm = (rhythm: (a: number) => MaybeRhythm, props: BoxProps) =>
     reduce(props, (value) => (typeof value == 'number' ? rhythm(value) : value))
-
 const reduceColors = (colors: Colors, props: BoxProps) => reduce(props, (value: Color) => colors[value])
-
 const reduceValue = (props: BoxProps) => reduce(props, (value) => value)
+
+/**
+ * Emulates react native for the browser by applying similair flexbox properties.
+ */
+const emulateReactNativeInBrowser = {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative'
+}
 
 /**
  * Transforms values from the style element that are vertical rhythm or colors into a 
@@ -166,10 +181,10 @@ const reduceStyle = (theme: Theme, style: StyleObject) =>
         return { ...total, [key]: value }
     }, {})
 
-const Box: React.SFC<BoxProps> = (props, { renderRule, theme }: BoxContext) => {
+const Box: React.SFC<BoxProps & React.HTMLProps<HTMLDivElement>> = (props, { renderRule, theme }: BoxContext) => {
     const {
         as,
-        style,
+        css,
 
         margin,
         marginHorizontal,
@@ -237,6 +252,7 @@ const Box: React.SFC<BoxProps> = (props, { renderRule, theme }: BoxContext) => {
     } = props
 
     const boxStyle = {
+        ...emulateReactNativeInBrowser,
         ...(reduceRhythm(theme.typography.rhythm, { 
             marginBottom,
             marginLeft,
@@ -292,10 +308,8 @@ const Box: React.SFC<BoxProps> = (props, { renderRule, theme }: BoxContext) => {
             borderColor, 
             color
         })),
-        ...(reduceStyle(theme, (typeof style == 'object' ? style : style(theme))))
+        ...(reduceStyle(theme, (Array.isArray(css) ? joinStyles(...css) : joinStyles(css))(theme)))
     }
-    console.log(props)
-    console.log(boxStyle)
     const className = renderRule(boxStyle)
     return React.createElement(as || 'div', { ...restProps, className })
 }

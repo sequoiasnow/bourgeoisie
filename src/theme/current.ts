@@ -20,6 +20,11 @@ const theme: Theme = {
         fontSizeScale: 'step5',
         lineHeight: 16
     }),
+    text: {
+        color: 'black',
+        colorAlt: 'white',
+        fontFamily: 'avenir'
+    },
     borderRadius: 6
 }
 export default theme
