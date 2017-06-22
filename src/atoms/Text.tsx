@@ -6,12 +6,12 @@ export type TextProps = BoxProps & {
   align?: 'left' | 'right' | 'center' | 'justify',
   bold?: boolean,
   italic?: boolean, 
-  color?: Color,
+  color?: string,
   decoration?: 'none' | 'underline' | 'line-through',
   fontFamily?: string,
   lineHeight?: number,
-  size?: number,
-  children?: string
+  size?: number,     
+  children?: string | JSX.Element
 }
 
 /**
@@ -21,7 +21,7 @@ export type TextProps = BoxProps & {
 const computeFontSizeAndLineHeight = ({ typography }: Theme, size: number) => {
   const fontSize = typography.fontSize(size)
   const lines = Math.ceil(fontSize / typography.lineHeight)
-  const lineHeight = (lines * typography.lineHeight) + 'px'
+  const lineHeight = (lines * typography.lineHeight) + 'px' 
   return { fontSize, lineHeight }
 }
 
@@ -55,9 +55,10 @@ const Text: React.SFC<TextProps> = (props, { theme }: ThemeContext) => {
         ...(decoration ? { textDecoration: decoration } : null),
         ...(italic ? { fontStyle: 'italic' } : null),
         ...(lineHeight ? { lineHeight } : null),
-      }))}>
+      }))} emulateReactNative={false}>
       {children} 
     </Box>
   )
-}
-export default withTheme(Text)
+} 
+
+export default withTheme<TextProps>(Text)

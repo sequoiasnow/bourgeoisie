@@ -45,13 +45,13 @@ interface Typography {
     lineHeight: number
 }
 
-const typography = ({ fontSize, fontSizeScale, lineHeight }: Typography) => ({
-    fontSize: (level: number) => (new Array(Math.abs(level))).reduce((size: number) => {
+const typography = ({ fontSize: f, fontSizeScale, lineHeight }: Typography) => ({
+    fontSize: (level: number) => Array.apply(null, { length: Math.abs(level) }).reduce((size: number) => {
         const scaleRatio = typeof fontSizeScale === 'string'
             ? scale[fontSizeScale]
             : fontSizeScale
         return level > 0 ? size * ( 1 / scaleRatio ) : size / ( 1 / scaleRatio )
-    }, fontSize),
+    }, f),
     lineHeight,
     rhythm: (ratio: number) => lineHeight * ratio
 })

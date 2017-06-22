@@ -18,7 +18,7 @@ const SegmentedControl: React.SFC<SegmentedControlProps> = ({ onChange = () => {
       justifyContent: 'center',
       alignItems: 'center'
     })}> 
-    {values.map((value, i) => <Box as="span" onClick={() => onChange(i)} css={(theme) => ({
+    {values.map((value, i) => <Box key={i} as="span" onClick={() => onChange(i)} css={(theme) => ({
         borderLeft: i !== 0 ? `1px solid ${theme.colors.primary}` : null,
         textAlign: 'center',
         padding: 1 / 2, 

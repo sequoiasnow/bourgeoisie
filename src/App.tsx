@@ -6,7 +6,6 @@ import Button from './atoms/Button'
 import SegmentedControl from './atoms/SegmentedControl'
 import Heading from './atoms/Heading'
 
-// let test: string = css({ border: '1px solid black' })
 
 /**
  * Transform the glamor css function into a proper format. 

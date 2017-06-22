@@ -56,5 +56,24 @@ export interface Theme {
         // but if you added another font it would be fontFamilyAlt
         fontFamily: string,
     }
-    borderRadius: number
+    borderRadius: number,
+    // The syntax colors allow the coloring of parts of speech and regular syntax
+    syntaxHighlighting: {
+        comment: string,
+        string: string,
+        number: string,
+        constant: string,
+        variable: string,
+        keyword: string,
+        storageType: string,
+        className: string,
+        functionName: string,
+        functionArg: string,
+        tagName: string,
+        tagAttribute: string,
+        library: string,
+        invalid: string,
+        depracted: string,
+        deliminator: string
+    }
 }

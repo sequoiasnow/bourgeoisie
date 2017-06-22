@@ -9,11 +9,19 @@ export interface ThemeContext {
   renderRule: (rule: Object) => string
 }
 
+
+/// Adds the contextTypes property to the component.
+export function withTheme<T>(Component: React.ComponentType<T>): React.ComponentType<T> {
+  Component.contextTypes = { theme: PropTypes.object }
+  return Component
+}
+
+
 /**
  * The theme provider passes down a theme component using react context. It
  * can then be accessed using the withTheme connecting function. 
  */
-export class ThemeProvider extends React.Component<ThemeContext, {}>{
+export class ThemeProvider extends React.Component<ThemeContext, {}> {
   static childContextTypes = {
     theme: PropTypes.object,
     renderRule: PropTypes.func
@@ -25,20 +33,8 @@ export class ThemeProvider extends React.Component<ThemeContext, {}>{
       renderRule: this.props.renderRule
     }
   }
-
+  
   render() {
-    return (
-      <div>
-        {this.props.children}
-      </div>
-    )
-  }
-}
-
-/**
- * Allows a simple component to consume the props passed to it.
- */
-export function withTheme(Component: React.ComponentType<Object>) {
-  Component.contextTypes = { theme: PropTypes.object }
-  return Component
+    return ( <div>{this.props.children}</div>)
+  } 
 }

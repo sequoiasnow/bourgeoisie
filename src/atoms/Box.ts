@@ -24,7 +24,9 @@ export type BoxProps = {
     // What underlying html or react element to render the box as.
     as?: string // | React.ComponentClass<Object> // -- Some difficulty here somehow.
     // A style object to pass to glamour.
-    css?: Style | Array<Style>, 
+    css?: Style | Array<Style>,
+    // Should it emulate react native styling with flexbox?
+    emulateReactNative?: boolean,
  
     margin?: MaybeRhythm,
     marginHorizontal?: MaybeRhythm,
@@ -96,7 +98,7 @@ export type BoxProps = {
     borderTopLeftRadius?: number,
     borderTopRightRadius?: number,
 
-    color?: Color,
+    color?: string,
     borderColor?: Color,
     borderBottomColor?: Color,
     borderLeftColor?: Color,
@@ -157,13 +159,6 @@ const reduceStyle = (theme: Theme, style: StyleObject) =>
                 [key]: (typeof value === 'number' ? theme.typography.rhythm(value) : value) 
             }
         }
-
-        if ( key === 'fontSize' ) {
-            return {
-                ...total,
-                [key]: (typeof value === 'number' ? theme.typography.fontSize(value) : value)
-            }
-        }
         
         if ( key.indexOf('margin') === 0
              || key.indexOf('padding') === 0 
@@ -185,6 +180,7 @@ const Box: React.SFC<BoxProps & React.HTMLProps<HTMLDivElement>> = (props, { ren
     const {
         as,
         css,
+        emulateReactNative = true,
 
         margin,
         marginHorizontal,
@@ -252,7 +248,7 @@ const Box: React.SFC<BoxProps & React.HTMLProps<HTMLDivElement>> = (props, { ren
     } = props
 
     const boxStyle = {
-        ...emulateReactNativeInBrowser,
+        ...(emulateReactNative ? emulateReactNativeInBrowser : {}),
         ...(reduceRhythm(theme.typography.rhythm, { 
             marginBottom,
             marginLeft,

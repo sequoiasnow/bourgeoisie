@@ -6,8 +6,7 @@
     "outDir": "./dist",
     "preserveConstEnums": true,
     "removeComments": true,
-    "target": "ES5",
-    "types": ["react"]
+    "target": "ES5"
   },
   "include": [
     "src/**/*"

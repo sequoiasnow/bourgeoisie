@@ -25,6 +25,25 @@ const theme: Theme = {
         colorAlt: 'white',
         fontFamily: 'avenir'
     },
-    borderRadius: 6
+    borderRadius: 6,
+    // Based on the monaki theme.
+    syntaxHighlighting: {
+        string: '#e6da7b',
+        comment: '#75715f',
+        number: '#ae85fc',
+        constant: '#ae85fc',
+        variable: 'white',
+        keyword: '#f62d73',
+        storageType: '#6bd9ed',
+        className: '#a7e040',
+        functionName: '#a7e040',
+        functionArg: '#fb9633',
+        tagName: '#f62d73',
+        tagAttribute: '#a7e040',
+        library: '#6bd9ed',
+        invalid: '#f62d73',
+        depracted: '#ae85fc',
+        deliminator: 'string'
+    }
 }
 export default theme
