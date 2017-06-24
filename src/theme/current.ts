@@ -23,7 +23,8 @@ const theme: Theme = {
     text: {
         color: 'black',
         colorAlt: 'white',
-        fontFamily: 'avenir'
+        fontFamily: 'Nunito, sans-serif',
+        fontFamilyAlt: 'Pacifico, cursive',
     },
     borderRadius: 6,
     // Based on the monaki theme.

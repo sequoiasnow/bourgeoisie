@@ -33,7 +33,7 @@ export type MaybeRhythm = number | string
  * A simple type for all style objects.
  */
 export interface StyleObject {
-    [x: string]: MaybeRhythm
+    [x: string]: MaybeRhythm | StyleObject
 }
 
 /**
@@ -55,6 +55,7 @@ export interface Theme {
         // The primary font for the entire site, consistancy is important
         // but if you added another font it would be fontFamilyAlt
         fontFamily: string,
+        fontFamilyAlt: string,
     }
     borderRadius: number,
     // The syntax colors allow the coloring of parts of speech and regular syntax

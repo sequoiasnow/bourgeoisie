@@ -14,10 +14,10 @@ export const joinStyles = (...styles: Style[]) => (theme: Theme) =>
 
 // A conveniance function to allow style inheratance, this was made
 // more complicated by passing around the theme component.
-export const withStyle = (...styles: (Style | Style[])[]) => (theme: Theme) =>
+export const withStyle = (...styles: (Style | Style[] | null)[]) => (theme: Theme) =>
     styles.reduce((total: StyleObject, style: (Style | Style[])) => ({
         ...total,
-        ...((Array.isArray(style) ? joinStyles(...style) : style)(theme))
+        ...((Array.isArray(style) ? joinStyles(...style) : (style || (() => ({}))))(theme))
     }), {})
 
 export type BoxProps = {

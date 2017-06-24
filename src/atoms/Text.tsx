@@ -1,4 +1,4 @@
-import Box, { BoxProps, withStyle } from './Box'
+import Box, { BoxProps, withStyle, Style } from './Box'
 import { Color, Theme } from '../theme'
 import { withTheme, ThemeContext } from './Theme'
 
@@ -10,7 +10,8 @@ export type TextProps = BoxProps & {
   decoration?: 'none' | 'underline' | 'line-through',
   fontFamily?: string,
   lineHeight?: number,
-  size?: number,     
+  size?: number,
+  css?: Style | Array<Style>
   children?: string | JSX.Element
 }
 
@@ -25,12 +26,12 @@ const computeFontSizeAndLineHeight = ({ typography }: Theme, size: number) => {
   return { fontSize, lineHeight }
 }
 
-/**
+/** 
  * The actual text building block, I should point out any changes here will
  * DRAMATICALLY change the entire workflow of the application, enough said.
  */
-const Text: React.SFC<TextProps> = (props, { theme }: ThemeContext) => {
-  const {
+const Text: React.SFC<TextProps & React.HTMLProps<HTMLSpanElement>> = (props, { theme }: ThemeContext) => {
+  const {   
     // Other variables.
     align,  
     bold,
@@ -46,19 +47,19 @@ const Text: React.SFC<TextProps> = (props, { theme }: ThemeContext) => {
   } = props
   
   return (
-    <Box as="span" {...restProps} css={withStyle(css, (theme) => ({
+    <Box as="span" {...restProps} css={withStyle((theme) => ({
         color,
-        fontFamily,
+        fontFamily: fontFamily === 'alt' ? theme.text.fontFamilyAlt : fontFamily,
         ...computeFontSizeAndLineHeight(theme, size),
         ...(align ? { textAlign: align } : null), 
         ...(bold ? { fontWeight: 'bold' } : null),
         ...(decoration ? { textDecoration: decoration } : null),
         ...(italic ? { fontStyle: 'italic' } : null),
         ...(lineHeight ? { lineHeight } : null),
-      }))} emulateReactNative={false}>
+      }), css)} emulateReactNative={false}>
       {children} 
     </Box>
   )
 } 
 
-export default withTheme<TextProps>(Text)
+export default withTheme<TextProps & React.HTMLProps<HTMLSpanElement>>(Text)

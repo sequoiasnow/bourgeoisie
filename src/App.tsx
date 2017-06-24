@@ -1,16 +1,10 @@
-import { css } from 'glamor'
+import { renderRule } from './styles'
 import currentTheme from './theme/current' 
 import { ThemeProvider } from './atoms/Theme'
 
 import Button from './atoms/Button'
 import SegmentedControl from './atoms/SegmentedControl'
 import Heading from './atoms/Heading'
-
-
-/**
- * Transform the glamor css function into a proper format. 
- */
-const renderRule = (rule: Object) => css(rule).toString()
 
 export default () => (
   <ThemeProvider renderRule={renderRule} theme={currentTheme}>
