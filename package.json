@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "NODE_ENV=development node webpack/webpack-dev-server --env.dev",
-    "build": "rm -Rf build/* | NODE_ENV=production webpack --config webpack/webpack.config.js --progress --env.prod"
+    "build": "rm -Rf docs/* | NODE_ENV=production webpack --config webpack/webpack.config.js --progress --env.prod"
   },
   "dependencies": {
     "@types/prop-types": "^15.5.1",
