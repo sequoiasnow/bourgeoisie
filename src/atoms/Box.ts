@@ -1,33 +1,19 @@
-import * as PropTypes from 'prop-types'
-import { Theme, Color, Colors, StyleObject, MaybeRhythm } from '../theme'
-import { withTheme, ThemeContext } from './Theme'
+import { hookForRules
+         , createPreprocessorTheme
+         , joinStyles
+         , Style
+         , MaybeRhythm
+       } from './style'
+import { withRenderer, RenderProps } from './withTheme'
+import { Theme } from '../types/theme'
 
-// The special type of a style element which can access the theme.
-export type Style = (t: Theme) => StyleObject
 
-// Allows two or more style objects to join together as follows.
-export const joinStyles = (...styles: Style[]) => (theme: Theme) => 
-    styles.filter((s) => s).reduce((total: StyleObject, style: Style) => ({
-        ...total,
-        ...(typeof style == 'object' ? style : style(theme))
-    }), {})
-
-// A conveniance function to allow style inheratance, this was made
-// more complicated by passing around the theme component.
-export const withStyle = (...styles: (Style | Style[] | null)[]) => (theme: Theme) =>
-    styles.reduce((total: StyleObject, style: (Style | Style[])) => ({
-        ...total,
-        ...((Array.isArray(style) ? joinStyles(...style) : (style || (() => ({}))))(theme))
-    }), {})
-
-export type BoxProps = {
-    // What underlying html or react element to render the box as.
-    as?: string // | React.ComponentClass<Object> // -- Some difficulty here somehow.
+export interface BoxProps {
     // A style object to pass to glamour.
     css?: Style | Array<Style>,
     // Should it emulate react native styling with flexbox?
     emulateReactNative?: boolean,
- 
+    
     margin?: MaybeRhythm,
     marginHorizontal?: MaybeRhythm,
     marginVertical?: MaybeRhythm,
@@ -78,7 +64,7 @@ export type BoxProps = {
         | 'space-between'
         | 'space-around',
 
-    backgroundColor?: Color,
+    backgroundColor?: string,
     opacity?: number,
     overflow?: 'visible' | 'hidden' | 'scroll',
     position?: 'absolute' | 'relative',
@@ -99,162 +85,139 @@ export type BoxProps = {
     borderTopRightRadius?: number,
 
     color?: string,
-    borderColor?: Color,
-    borderBottomColor?: Color,
-    borderLeftColor?: Color,
-    borderRightColor?: Color,
-    borderTopColor?: Color,
+    borderColor?: string,
+    borderBottomColor?: string,
+    borderLeftColor?: string,
+    borderRightColor?: string,
+    borderTopColor?: string,
 }
 
-type BoxContext = ThemeContext
 
-/**
- * Allows the altering of values, such as colors or rythm into consumable 
- * values.
- */
-const reduce = (props: BoxProps, getValue: (v: MaybeRhythm) => MaybeRhythm) =>
-    Object.keys(props).reduce((style: BoxProps, prop: (keyof BoxProps)) => {
-        const v  = props[prop]
-        if ( v === undefined ) return style
-        if ( typeof v !== 'string' && typeof v !== 'number' ) return style
-        return {
-            ...style, 
-            [prop]: getValue(v)
-        }
-    }, {})
 
-const reduceRhythm = (rhythm: (a: number) => MaybeRhythm, props: BoxProps) =>
-    reduce(props, (value) => (typeof value == 'number' ? rhythm(value) : value))
-const reduceColors = (colors: Colors, props: BoxProps) => reduce(props, (value: Color) => colors[value])
-const reduceValue = (props: BoxProps) => reduce(props, (value) => value)
-
-/**
- * Emulates react native for the browser by applying similair flexbox properties.
- */
+// Emulates react native for the browser by applying similair flexbox properties.
 const emulateReactNativeInBrowser = {
     display: 'flex',
     flexDirection: 'column',
     position: 'relative'
 }
 
-/**
- * Transforms values from the style element that are vertical rhythm or colors into a 
- */
-const reduceStyle = (theme: Theme, style: StyleObject) =>
-    Object.keys(style).reduce((total: Object, key: string) => {
-        const value: any = <any> style[key]
-        if ( key.indexOf('margin') === 0
-             || key.indexOf('padding') === 0
-             || key === 'bottom'
-             || key === 'height'
-             || key === 'left'
-             || key === 'maxWidth'
-             || key === 'minHeight'
-             || key === 'minWidth'
-             || key === 'right'
-             || key === 'top'
-             || key === 'width' ) {
-            return {
-                ...total,
-                [key]: (typeof value === 'number' ? theme.typography.rhythm(value) : value) 
-            }
-        }
-        
-        if ( key.indexOf('margin') === 0
-             || key.indexOf('padding') === 0 
-             || key === 'color'
-             || key === 'borderColor'
-             || key === 'borderBottomColor'
-             || key === 'borderLeftColor'
-             || key === 'borderRightColor'
-             || key === 'borderTopColor' ) {
-            return {
-                ...total,
-                [key]: theme.colors[value] || value
-            }
-        }
-        return { ...total, [key]: value }
-    }, {})
+const rhythmHook = (theme: Theme) => hookForRules([
+    'margin',
+    'marginLeft',
+    'marginRight',
+    'marginTop',
+    'marginBottom', 
+    'padding',
+    'paddingLeft',
+    'paddingRight',
+    'paddingTop',
+    'paddingBottom',
+], (val) => (typeof (val == 'number') ?
+             theme.typography.rhythm(val as number) : val))
 
-const Box: React.SFC<BoxProps & React.HTMLProps<HTMLDivElement>> = (props, { renderRule, theme }: BoxContext) => {
-    const {
-        as,
-        css,
-        emulateReactNative = true,
+const colorHook = (theme: Theme) => hookForRules([
+    'color',
+    'borderColor',
+    'borderBottomColor',
+    'borderTopColor',
+    'borderLeftColor',
+    'borderRightColor',
+    'backgroundColor',
+    'textDecorationColor',
+    'outlineColor', 
+], (val) => (typeof val == 'string') ? (theme.colors[val] || val) : val)
 
-        margin,
-        marginHorizontal,
-        marginVertical,
-        marginBottom = marginVertical,
-        marginLeft = marginHorizontal,
-        marginRight = marginHorizontal,
-        marginTop = marginVertical,
+// This will run only on a styleobject! eventually it would make sense for
+// this to apply the theme as well, but not right now.
+const preprocessor = createPreprocessorTheme(
+    rhythmHook,
+    colorHook
+)
 
-        padding,
-        paddingHorizontal,
-        paddingVertical,
-        paddingBottom = paddingVertical,
-        paddingLeft = paddingHorizontal,
-        paddingRight = paddingHorizontal,
-        paddingTop = paddingVertical,
 
-        bottom,
-        height,
-        left,
-        maxHeight,
-        maxWidth,
-        minHeight,
-        minWidth,
-        right,
-        top,
-        width,
+export function createBox<Props>(as: string | React.ComponentType<Props>):React.ComponentType<Props & BoxProps> {
+    return withRenderer<Props & BoxProps>((props) => {
+        const {
+            theme,
+            renderRule,
+            
+            css,
+            emulateReactNative = true,
 
-        alignItems,
-        alignSelf,
-        flex,
-        flexBasis,
-        flexDirection,
-        flexGrow,
-        flexShrink,
-        flexWrap,
-        justifyContent,
-        backgroundColor,
-        opacity,
-        overflow,
-        position,
-        zIndex,
-        borderStyle,
+            margin,
+            marginHorizontal,
+            marginVertical,
+            marginBottom = marginVertical,
+            marginLeft = marginHorizontal,
+            marginRight = marginHorizontal,
+            marginTop = marginVertical,
 
-        borderWidth,
-        borderBottomWidth,
-        borderLeftWidth,
-        borderRightWidth,
-        borderTopWidth,
+            padding,
+            paddingHorizontal,
+            paddingVertical,
+            paddingBottom = paddingVertical,
+            paddingLeft = paddingHorizontal,
+            paddingRight = paddingHorizontal,
+            paddingTop = paddingVertical,
 
-        borderRadius,
-        borderBottomLeftRadius,
-        borderBottomRightRadius,
-        borderTopLeftRadius, 
-        borderTopRightRadius,
+            bottom,
+            height,
+            left,
+            maxHeight,
+            maxWidth,
+            minHeight,
+            minWidth,
+            right,
+            top,
+            width,
 
-        color,
-        borderColor,
-        borderBottomColor,
-        borderLeftColor,
-        borderRightColor,
-        borderTopColor,
+            alignItems,
+            alignSelf,
+            flex,
+            flexBasis,
+            flexDirection,
+            flexGrow,
+            flexShrink,
+            flexWrap,
+            justifyContent,
+            backgroundColor,
+            opacity,
+            overflow,
+            position,
+            zIndex,
+            borderStyle,
 
-        ...restProps
-    } = props
+            borderWidth,
+            borderBottomWidth,
+            borderLeftWidth,
+            borderRightWidth,
+            borderTopWidth,
 
-    const boxStyle = {
-        ...(emulateReactNative ? emulateReactNativeInBrowser : {}),
-        ...(reduceRhythm(theme.typography.rhythm, { 
+            borderRadius,
+            borderBottomLeftRadius,
+            borderBottomRightRadius,
+            borderTopLeftRadius, 
+            borderTopRightRadius,
+
+            color,
+            borderColor,
+            borderBottomColor,
+            borderLeftColor,
+            borderRightColor,
+            borderTopColor,
+
+            // TS Ignore, this is an error I can't seem to fix..
+            ...restProps
+        } = props as BoxProps & RenderProps // This is only to bypass ts warnings.
+
+        const propStyles = {
+            margin,
             marginBottom,
             marginLeft,
             marginRight,
             marginTop,
 
+            padding,
             paddingBottom,
             paddingLeft,
             paddingRight,
@@ -270,49 +233,50 @@ const Box: React.SFC<BoxProps & React.HTMLProps<HTMLDivElement>> = (props, { ren
             right,
             top,
             width,
-        })),
-        ...reduceValue({
+
             alignItems,
             alignSelf,
+            flex,
             flexBasis,
             flexDirection,
             flexGrow,
             flexShrink,
             flexWrap,
             justifyContent,
+            backgroundColor,
             opacity,
             overflow,
             position,
             zIndex,
             borderStyle,
+
+            borderWidth,
             borderBottomWidth,
             borderLeftWidth,
             borderRightWidth,
             borderTopWidth,
+
+            borderRadius,
             borderBottomLeftRadius,
             borderBottomRightRadius,
-            borderTopLeftRadius,
+            borderTopLeftRadius, 
             borderTopRightRadius,
-            flex,
-        }),
-        ...(reduceColors(theme.colors, {
-            backgroundColor,
+
+            color,
+            borderColor,
             borderBottomColor,
             borderLeftColor,
             borderRightColor,
             borderTopColor,
-            borderColor, 
-            color
-        })),
-        ...(reduceStyle(theme, (Array.isArray(css) ? joinStyles(...css) : joinStyles(css))(theme)))
-    }
-    const className = renderRule(boxStyle)
-    return React.createElement(as || 'div', { ...restProps, className })
+        }
+
+        const styles = (Array.isArray(css) ?
+                        joinStyles(...css, propStyles)
+                        : joinStyles(css, propStyles))(theme)
+        const className = renderRule(preprocessor(theme)(styles))
+        
+        return React.createElement(<any> as, { ...restProps, className })
+    }) 
 }
 
-Box.contextTypes = {
-    theme: PropTypes.object,
-    renderRule: PropTypes.func
-}
-
-export default Box
+export default createBox<React.HTMLProps<HTMLDivElement>>('div')

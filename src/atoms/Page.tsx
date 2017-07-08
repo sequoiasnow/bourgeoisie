@@ -6,7 +6,7 @@ import Box from './Box'
  */
 const Page: React.SFC<{}> =  ({ children }) => (
   <Box flexDirection="row" justifyContent="center" backgroundColor="white"> 
-    <Box maxWidth={8000} padding={2}>
+    <Box maxWidth={800} padding={2}>
       {children}  
     </Box> 
   </Box>

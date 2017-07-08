@@ -33,7 +33,7 @@ const computeFontSizeAndLineHeight = ({ typography }: Theme, size: number) => {
 const Text: React.SFC<TextProps & React.HTMLProps<HTMLSpanElement>> = (props, { theme }: ThemeContext) => {
   const {   
     // Other variables.
-    align,  
+    align,
     bold,
     color = theme.text.color, 
     decoration,
