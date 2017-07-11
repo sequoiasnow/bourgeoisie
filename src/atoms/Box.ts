@@ -1,9 +1,9 @@
 import { hookForRules
+         , customReturnHook
          , createPreprocessorTheme
-         , joinStyles
-         , Style
-         , MaybeRhythm
+         , withStyle
        } from './style'
+import { Style, MaybeRhythm } from '../types/style'
 import { withRenderer, RenderProps } from './withTheme'
 import { Theme } from '../types/theme'
 
@@ -104,7 +104,7 @@ const emulateReactNativeInBrowser = {
 const rhythmHook = (theme: Theme) => hookForRules([
     'margin',
     'marginLeft',
-    'marginRight',
+    'marginRight', 
     'marginTop',
     'marginBottom', 
     'padding',
@@ -127,26 +127,41 @@ const colorHook = (theme: Theme) => hookForRules([
     'outlineColor', 
 ], (val) => (typeof val == 'string') ? (theme.colors[val] || val) : val)
 
+const computeFontSizeAndLineHeightHook = ({ typography }: Theme) =>
+    customReturnHook('fontSize', (size) => {
+        let numSize = typeof size == 'number' ? size : parseInt(size, 10)
+        let fontSize = typography.fontSize(numSize)
+        let lines = Math.ceil(fontSize / typography.lineHeight)
+        let lineHeight = (lines * typography.lineHeight) + 'px' 
+        return { fontSize, lineHeight }
+    })
+
+
 // This will run only on a styleobject! eventually it would make sense for
 // this to apply the theme as well, but not right now.
 const preprocessor = createPreprocessorTheme(
     rhythmHook,
-    colorHook
+    colorHook,
+    computeFontSizeAndLineHeightHook
 )
 
 
-export function createBox<Props>(as: string | React.ComponentType<Props>):React.ComponentType<Props & BoxProps> {
+export function createBox<Props>(
+    as: string | React.SFC<Props>,
+    changeProps?: (props: Props & BoxProps & RenderProps) => Props & BoxProps & RenderProps
+): React.SFC<Props & BoxProps> {
     return withRenderer<Props & BoxProps>((props) => {
+        let newProps = changeProps ? changeProps(props) : props
         const {
             theme,
-            renderRule,
+            renderRule, 
             
             css,
             emulateReactNative = true,
 
             margin,
             marginHorizontal,
-            marginVertical,
+            marginVertical, 
             marginBottom = marginVertical,
             marginLeft = marginHorizontal,
             marginRight = marginHorizontal,
@@ -186,7 +201,7 @@ export function createBox<Props>(as: string | React.ComponentType<Props>):React.
             position,
             zIndex,
             borderStyle,
-
+            
             borderWidth,
             borderBottomWidth,
             borderLeftWidth,
@@ -208,7 +223,7 @@ export function createBox<Props>(as: string | React.ComponentType<Props>):React.
 
             // TS Ignore, this is an error I can't seem to fix..
             ...restProps
-        } = props as BoxProps & RenderProps // This is only to bypass ts warnings.
+        } = newProps as BoxProps & RenderProps // This is only to bypass ts warnings.
 
         const propStyles = {
             margin,
@@ -270,9 +285,7 @@ export function createBox<Props>(as: string | React.ComponentType<Props>):React.
             borderTopColor,
         }
 
-        const styles = (Array.isArray(css) ?
-                        joinStyles(...css, propStyles)
-                        : joinStyles(css, propStyles))(theme)
+        const styles = withStyle(css, propStyles)(theme)
         const className = renderRule(preprocessor(theme)(styles))
         
         return React.createElement(<any> as, { ...restProps, className })

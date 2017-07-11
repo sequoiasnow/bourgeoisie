@@ -7,8 +7,8 @@ export interface ThemeProps {
    theme: Theme
 }
 
-export function withTheme<Props>(Comp: React.ComponentType<Props & ThemeProps>) {
-    return connect((state) => ({
+export function withTheme<Props>(Comp: React.SFC<Props & ThemeProps>) {
+    return connect<Props, ThemeProps, {}>((state) => ({
         theme: state.theme.current
     }))(Comp)
 } 
@@ -18,8 +18,8 @@ export interface RenderProps {
     renderRule: (rule: Object) => string
 }
 
-export function withRenderer<Props>(Comp: React.ComponentType<Props & RenderProps>) {
-    return connect((state) => ({
+export function withRenderer<Props>(Comp: React.SFC<Props & RenderProps>) {
+    return connect<Props, RenderProps, {}>((state) => ({
         theme: state.theme.current,
         renderRule: state.theme.renderRule
     }))(Comp)

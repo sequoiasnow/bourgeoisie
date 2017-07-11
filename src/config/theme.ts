@@ -1,10 +1,7 @@
-import { Theme } from './index'
-import typography from './typography'
+import { Theme  } from '../types/theme'
+import typography from '../utils/typography' 
 
-/**
- * The current theme for the project, by defining the type we get type checking.
- */  
-const theme: Theme = { 
+const theme: Theme = {
     colors: {
         primary: '#ef4836',
         secondary: '#f1ab4c',
@@ -22,9 +19,8 @@ const theme: Theme = {
     }),
     text: {
         color: 'black',
-        colorAlt: 'white',
-        fontFamily: 'Nunito, sans-serif',
-        fontFamilyAlt: 'Pacifico, cursive',
+        //     fontFamily: 'Nunito, sans-serif',
+        //     fontFamilyAlt: 'Pacifico, cursive',
     },
     borderRadius: 6,
     // Based on the monaki theme.

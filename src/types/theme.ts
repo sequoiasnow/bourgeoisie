@@ -25,7 +25,7 @@ export interface Theme {
     },
     // The border radius for the global application, this is not necesarily
     // used consistently and when it is can be used as a mutliplier.
-    birderRadius: number,
+    borderRadius: number,
     // The syntax highlighting used to create a theme,
     syntaxHighlighting?: {
         comment: string,

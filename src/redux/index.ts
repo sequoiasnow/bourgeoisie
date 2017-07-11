@@ -1,9 +1,7 @@
 import { connect as reduxConnect } from 'react-redux'
+import { State } from '../types/State'
 
-/// Define the overall shape of the state store.
-type State = { theme: any }
-
-/// The standard shape of any action.
+/// The standard shape of any action. 
 type Action = {
     type: string,
     [name: string]: any,
@@ -26,9 +24,9 @@ export function connect<OwnProps, StateProps, DispatchProps>(
 ) {
     // Combine all generics into inline component.
     return function componentImplementation(
-        component: React.ComponentType<OwnProps & StateProps & DispatchProps>
+        component: React.SFC<OwnProps & StateProps & DispatchProps>
     ) {
-        return reduxConnect(mapStateToProps, mapDispatchToProps as any)(component) as any as React.ComponentType<OwnProps>; 
+        return reduxConnect(mapStateToProps, (mapDispatchToProps as any) || (() => ({})))(component) as any as React.SFC<OwnProps>; 
     }
 }
 
