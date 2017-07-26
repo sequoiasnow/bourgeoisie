@@ -15,11 +15,10 @@ export const joinStyles: (...styles: Style[]) => StyleWithTheme
                          : (typeof style == 'object' ? style : style(theme))) 
                  }), {}) as StyleObject
 
-             /// A conveniance function that makes use of hte joinStyles utility to allow
-             /// easy extending of css styles...
-export const withStyle: (origional: StyleProp, newStyle: Style) => StyleWithTheme
-    = (origional, newStyle) => Array.isArray(origional) ?
-    joinStyles(...origional, newStyle) : joinStyles(origional, newStyle)
+/// A conveniance function that makes use of hte joinStyles utility to allow
+/// easy extending of css styles...
+export const withStyle: (...styles: (StyleProp | Style)[]) => StyleWithTheme
+    = (...styles) => joinStyles(...styles.map((s) => Array.isArray(s) ? joinStyles(...s) : s))
 
 /// A simple hook for a style object.
 type Hook = (rule: string, value: MaybeRhythm) => StyleObject | null
