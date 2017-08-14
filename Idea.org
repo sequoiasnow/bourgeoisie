@@ -1,0 +1,37 @@
+The idea of this code is that the repository can be pulled and easily used to make
+simple or complex projects on the fly. One of the coolest parts of this process
+is the use of inline stlyes to spead up the design styles. However, the current 
+trouble is with furthering the logic of the application while also providing 
+other means of use, which is why my newfound thought is to make the entire repository
+a package. The problem with this is that the current layout is structered as an 
+inclusive means of app development. There have been a few problems so far, listed
+bellow
+
+* Current Problems 
+There are a host of issues associated with the package, what was once easy to use 
+has become incredibly hard and limiting to work with.
+
++ Types Folder 
+The types folder must be updated for every change in the shape of the redux store,
+every change in the shape of theme varaible and for every change in the shape of 
+the theme variables. On the plus side, it makes the theme variable more editable...
++ Complex Imports
+Importing ~Box~ and ~Text~ from the ~./src/atoms/~ folder makes them more difficult
+to access, similairly importing the correctly typed connect function should really 
+override the redux functionality, not add to it. 
++ Typescript
+It works well in many ways but there have been some errors in understanding if 
+typeof statement blocks and also using the spread operator for mixed types which
+extend the object type.
+
+* In a Perfect World
+In a perfect world I wouldn't have to write this, because I would have fixed these
+problems before. Sadly, as I haven't been able to do that yet, I'll have to settle
+for the imperfect.
+
+The Box and Text components would be imported from their own "package" or from a 
+lib folder such that webpack would requuire files from a lib folder, this might 
+mess with a typescript setup, so for now it will just be local, again in a perfect
+world.
+
+Redux with typescript is difficult, typing the connect function for one
