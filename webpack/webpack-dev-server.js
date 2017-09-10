@@ -9,9 +9,9 @@ const path = require('path')
 const env = { dev: true }
 
 const devServerConfig = {
-  contentBase: path.join(__dirname, '../src/'),
+  contentBase: path.join(__dirname, '../docs/'),
   historyApiFallback: true, // Allows react-router to work with browserHistory.
-  stats: { colors: true }
+  stats: { colors: true } 
 }
 
 const server = new WebpackDevServer(webpack(webpackConfig(env)), devServerConfig)

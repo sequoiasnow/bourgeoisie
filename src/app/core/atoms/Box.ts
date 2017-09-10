@@ -125,7 +125,10 @@ const colorHook = (theme: Theme) => hookForRules([
     'backgroundColor',
     'textDecorationColor',
     'outlineColor', 
-], (val) => (typeof val == 'string') ? (theme.colors[val] || val) : val)
+], (val) => {
+    const c = (typeof val == 'string') ? (theme.colors[val] || val) : val
+    return c
+})
 
 const computeFontSizeAndLineHeightHook = ({ typography }: Theme) =>
     customReturnHook('fontSize', (size) => {
@@ -141,8 +144,8 @@ const computeFontSizeAndLineHeightHook = ({ typography }: Theme) =>
 // this to apply the theme as well, but not right now.
 const preprocessor = createPreprocessorTheme(
     rhythmHook,
-    colorHook,
-    computeFontSizeAndLineHeightHook
+    computeFontSizeAndLineHeightHook,
+    colorHook
 )
 
 
@@ -228,6 +231,8 @@ export function createBox<Props>(
         } = newProps as BoxProps & RenderProps // This is only to bypass ts warnings.
 
         const propStyles = {
+            ...(emulateReactNative ? emulateReactNativeInBrowser : {}),
+            
             margin,
             marginBottom,
             marginLeft,

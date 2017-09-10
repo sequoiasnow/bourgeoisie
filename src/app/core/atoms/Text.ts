@@ -33,6 +33,8 @@ export function createTextComponent<Props extends object>(
 
         const addedStyles = withStyles ? withStyles(props) : {}
 
+        console.log(`The text color is ${color}`)
+        
         return {
             css: withStyle(addedStyles, css, theme => ({
                 color: color || theme.text.color,

@@ -9,20 +9,34 @@ import { StyleState, getStyleState } from './ducks'
 import { ThemeProps } from '../theme/lib/withTheme'
 import { getTheme } from '../theme/ducks'
 
+/// Remove the empty values from an object.
+function removeEmpty(obj: {[x: string]: any}): {[x: string]: any} {
+    let newObject: any = {}
+    for (let key in obj) {
+        const val: any = obj[key]
+        if (val) {
+            newObject[key] = val 
+        }
+    }
+    return newObject
+}
+
 /// A utility to take multiple styles an join them together. Also accepts null
 /// values which are removed 
 export const joinStyles: (...styles: Style[]) => StyleWithTheme
-                 = (...styles) => (theme) => 
-                 styles.filter((s) => s).reduce((total: StyleObject, style: Style) => ({
-                     ...total,
-                     ...(Array.isArray(style) ? joinStyles(style)(theme)
-                         : (typeof style == 'object' ? style : style(theme))) 
-                 }), {}) as StyleObject
+    = (...styles) => (theme) => 
+    styles.filter((s) => s).reduce((total: StyleObject, style: Style) => ({
+        ...total,
+        ...(Array.isArray(style) ? joinStyles(style)(theme)
+            : removeEmpty(typeof style == 'object' ? style : style(theme))) 
+    }), {}) as StyleObject
 
 /// A conveniance function that makes use of hte joinStyles utility to allow
 /// easy extending of css styles...
 export const withStyle: (...styles: (StyleProp | Style)[]) => StyleWithTheme
-    = (...styles) => joinStyles(...styles.map((s) => Array.isArray(s) ? joinStyles(...s) : s))
+    = (...styles) => joinStyles(
+        ...styles.map((s) => Array.isArray(s) ? joinStyles(...s) : s)
+    )
 
 /// A simple hook for a style object.
 type Hook = (rule: string, value: MaybeRhythm) => StyleObject | null

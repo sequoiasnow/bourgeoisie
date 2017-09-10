@@ -13,8 +13,3 @@ export function withTheme<Props>(Comp: React.SFC<Props & ThemeProps>) {
         theme: getTheme(state)
     }))(Comp)
 } 
-
-export interface RenderProps {
-    theme: Theme,
-    renderRule: (rule: Object) => string
-}
